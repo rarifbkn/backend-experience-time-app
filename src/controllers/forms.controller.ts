@@ -1,7 +1,10 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import * as formService from '../services/Forms.services';
 
-const create = async (req: Request, res: Response) => {
+type IdParams = { id: string };
+type TokenParams = { token: string };
+
+const create: RequestHandler = async (req, res) => {
   try {
     const form = await formService.createForm(req.body);
     res.status(201).json(form);
@@ -10,7 +13,7 @@ const create = async (req: Request, res: Response) => {
   }
 };
 
-const getAll = async (_req: Request, res: Response) => {
+const getAll: RequestHandler = async (_req, res) => {
   try {
     const forms = await formService.getAllForms();
     res.status(200).json(forms);
@@ -19,57 +22,72 @@ const getAll = async (_req: Request, res: Response) => {
   }
 };
 
-const getById = async (req: Request, res: Response) => {
+const getById: RequestHandler<IdParams> = async (req, res) => {
   try {
     const form = await formService.getFormById(req.params.id);
-    if (!form) return res.status(404).json({ error: 'Form not found' });
+    if (!form) {
+      res.status(404).json({ error: 'Form not found' });
+      return;
+    }
     res.status(200).json(form);
   } catch (err) {
     res.status(500).json({ error: 'Error fetching form', details: err });
   }
 };
 
-const getByToken = async (req: Request, res: Response) => {
+const getByToken: RequestHandler<TokenParams> = async (req, res) => {
   try {
     const form = await formService.getFormByToken(req.params.token);
-    if (!form) return res.status(404).json({ error: 'Form not found' });
+    if (!form) {
+      res.status(404).json({ error: 'Form not found' });
+      return;
+    }
     res.status(200).json(form);
   } catch (err) {
     res.status(500).json({ error: 'Error fetching form by token', details: err });
   }
 };
 
-const update = async (req: Request, res: Response) => {
+const update: RequestHandler<IdParams> = async (req, res) => {
   try {
     const form = await formService.updateForm(req.params.id, req.body);
-    if (!form) return res.status(404).json({ error: 'Form not found' });
+    if (!form) {
+      res.status(404).json({ error: 'Form not found' });
+      return;
+    }
     res.status(200).json(form);
   } catch (err) {
     res.status(500).json({ error: 'Error updating form', details: err });
   }
 };
 
-const softDelete = async (req: Request, res: Response) => {
+const softDelete: RequestHandler<IdParams> = async (req, res) => {
   try {
     const form = await formService.deleteForm(req.params.id);
-    if (!form) return res.status(404).json({ error: 'Form not found' });
+    if (!form) {
+      res.status(404).json({ error: 'Form not found' });
+      return;
+    }
     res.status(200).json({ message: 'Form soft deleted', form });
   } catch (err) {
     res.status(500).json({ error: 'Error deleting form', details: err });
   }
 };
 
-const restore = async (req: Request, res: Response) => {
+const restore: RequestHandler<IdParams> = async (req, res) => {
   try {
     const form = await formService.restoreForm(req.params.id);
-    if (!form) return res.status(404).json({ error: 'Form not found' });
+    if (!form) {
+      res.status(404).json({ error: 'Form not found' });
+      return;
+    }
     res.status(200).json({ message: 'Form restored', form });
   } catch (err) {
     res.status(500).json({ error: 'Error restoring form', details: err });
   }
 };
 
-// const getDeleted = async (_req: Request, res: Response) => {
+// const getDeleted: RequestHandler = async (_req, res) => {
 //   try {
 //     const forms = await formService.getDeletedForms();
 //     res.status(200).json(forms);
@@ -86,5 +104,5 @@ export default {
   update,
   softDelete,
   restore,
-  //getDeleted,
+  // getDeleted,
 };
