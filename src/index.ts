@@ -3,21 +3,26 @@ import { connectDB } from "./config/db";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import formsRoutes from './routes/forms.routes';
 
 const PORT: number = parseInt(process.env.PORT || "4000");
 
 const app = express();
 
-//use
 app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 
-//Try connection with Atlas MongoDB
+
 connectDB();
 
-// Basic health check route
+app.use('/forms', formsRoutes);
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
+});
+
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({ status: "ok", message: "Server is running" });
 });

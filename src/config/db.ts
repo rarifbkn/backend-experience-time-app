@@ -1,29 +1,46 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
-// Load environment variables from .env.local first, then fallback to .env
 dotenv.config({ path: ".env.local" });
+dotenv.config(); 
 
 const uri = process.env.MONGODB_URI || "";
 
-const options = {} as mongoose.ConnectOptions;
+const options: mongoose.ConnectOptions = {
+};
 
 export async function connectDB(): Promise<void> {
   try {
     await mongoose.connect(uri, options);
     console.log(`🪄 ....... Conectao mi pana`);
+    
+    setupConnectionHandlers();
   } catch (error) {
     console.error("Error al conectar a mongoDB:", error);
     process.exit(1);
   }
 }
 
-//close connection
+function setupConnectionHandlers(): void {
+  mongoose.connection.on("disconnected", () => {
+    console.log("MongoDB desconectado");
+  });
 
-mongoose.connection.on("disconnected", () => {
-  console.log("MongoDB desconectado");
-});
+  mongoose.connection.on("error", (err) => {
+    console.error("Error en la conexión de MongoDB:", err);
+  });
+  
+  process.on('SIGINT', async () => {
+    await mongoose.connection.close();
+    console.log('Conexión a MongoDB cerrada debido a la terminación de la aplicación');
+    process.exit(0);
+  });
+  
+  process.on('SIGTERM', async () => {
+    await mongoose.connection.close();
+    console.log('Conexión a MongoDB cerrada debido a la terminación de la aplicación');
+    process.exit(0);
+  });
+}
 
-mongoose.connection.on("error", (err) => {
-  console.error("Error en la conexión de MongoDB:", err);
-});
+export default mongoose;
