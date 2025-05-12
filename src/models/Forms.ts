@@ -1,71 +1,59 @@
-import mongoose, { Document, Model, Schema } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
-import { Forms } from '../interfaces/forms.interfaces';
+// src/models/Form.ts
+import mongoose, { Schema, Document } from 'mongoose';
+import { randomBytes } from 'crypto';
+import { Forms, FormsBase } from '../interfaces/forms.interfaces';
 
-export interface FormsDocument extends Forms, Document {
-  softDelete(): Promise<FormsDocument>;
-  restore(): Promise<FormsDocument>;
-}
-
-export interface FormsModel extends Model<FormsDocument> {
-  withDeleted(): mongoose.Query<FormsDocument[], FormsDocument>;
-}
-
-const formsSchema = new Schema<FormsDocument, FormsModel>(
+// Esquema de Mongoose para formularios
+const FormSchema = new Schema<Forms & Document>(
   {
     title: { type: String, required: true },
-    description: { type: String, required: true },
-    expire_date: { type: Date, required: true },
+    description: { type: String },
     token: {
-        type: String,
-        default: () => uuidv4(), 
-        unique: true
-      },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      immutable: true
+      type: String,
+      required: true,
+      unique: true,
+      default: () => randomBytes(16).toString('hex'),
     },
-    updatedAt: {
-      type: Date,
-      default: Date.now
-    },
-    deletedAt: {
-      type: Date,
-      default: null
-    },
-    isDeleted: {
-      type: Boolean,
-      default: false
-    }
+    expireDate: { type: Date },
+    // Otros campos específicos que puedas tener
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
   },
   {
-    collection: 'forms',
-    versionKey: '__v',
-    timestamps: false
+    timestamps: true,
+    versionKey: false,
   }
 );
 
-formsSchema.pre('save', function (next) {
-    this.set('updatedAt', new Date());
-  });
-  
-
-formsSchema.methods.softDelete = function (): Promise<FormsDocument> {
-  this.deletedAt = new Date();
+// Método para soft delete
+FormSchema.methods.softDelete = async function() {
   this.isDeleted = true;
-  return this.save();
+  this.deletedAt = new Date();
+  return await this.save();
 };
 
-formsSchema.methods.restore = function (): Promise<FormsDocument> {
-  this.deletedAt = null;
+// Método para restaurar
+FormSchema.methods.restore = async function() {
   this.isDeleted = false;
-  return this.save();
+  this.deletedAt = undefined;
+  return await this.save();
 };
 
-formsSchema.statics.withDeleted = function () {
-  return this.find({ isDeleted: true });
+// Query middleware para excluir los documentos eliminados por defecto
+FormSchema.pre('find', function() {
+  this.where({ isDeleted: false });
+});
+
+FormSchema.pre('findOne', function() {
+  this.where({ isDeleted: false });
+});
+
+// Método estático para obtener también los documentos eliminados
+FormSchema.statics.withDeleted = function() {
+  return this.find().where({ isDeleted: true });
 };
 
-const FormModel = mongoose.model<FormsDocument, FormsModel>('Forms', formsSchema);
+// Export del modelo
+const FormModel = mongoose.model<Forms & Document>('Form', FormSchema);
+
 export default FormModel;

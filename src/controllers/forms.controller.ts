@@ -71,14 +71,14 @@ const restore = async (req: Request, res: Response) => {
   }
 };
 
-const getDeleted = async (_req: Request, res: Response) => {
-  try {
-    const forms = await formService.getDeletedForms();
-    res.status(200).json(forms);
-  } catch (err) {
-    res.status(500).json({ error: 'Error fetching deleted forms', details: err });
-  }
-};
+// const getDeleted = async (_req: Request, res: Response) => {
+//   try {
+//     const forms = await formService.getDeletedForms();
+//     res.status(200).json(forms);
+//   } catch (err) {
+//     res.status(500).json({ error: 'Error fetching deleted forms', details: err });
+//   }
+// };
 
 export default {
   create,
@@ -88,5 +88,5 @@ export default {
   update,
   softDelete,
   restore,
-  getDeleted,
+  //getDeleted,
 };
