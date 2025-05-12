@@ -1,5 +1,3 @@
-// src/controllers/Forms.controller.ts
-
 import { Request, Response } from 'express';
 import * as formService from '../services/Forms.services';
 
