@@ -3,7 +3,8 @@ import { connectDB } from "./config/db";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import formsRoutes from './routes/forms.routes';
+import formsRoutes from './Forms/forms.routes';
+import fieldRoutes from './Field/field.routes';
 
 const PORT: number = parseInt(process.env.PORT || "4000");
 
@@ -18,6 +19,7 @@ app.use(express.json());
 connectDB();
 
 app.use('/forms', formsRoutes);
+app.use('/fields', fieldRoutes );
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: "Something went wrong!" });

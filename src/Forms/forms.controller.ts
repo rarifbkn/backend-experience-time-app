@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import * as formService from '../services/Forms.services';
+import * as formService from './Forms.services';
 
 type IdParams = { id: string };
 type TokenParams = { token: string };

@@ -1,5 +1,5 @@
-import FormModel from '../models/Forms';
-import { Forms, FormsBase, FormDocument } from '../interfaces/forms.interfaces';
+import FormModel from './Forms';
+import { Forms, FormsBase, FormDocument } from './forms.interfaces';
 import mongoose from 'mongoose';
 
 export const createForm = async (data: Partial<FormsBase>): Promise<Forms> => {
