@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { randomBytes } from 'crypto';
-import { Forms, FormsBase } from '../interfaces/forms.interfaces';
+import { Forms, FormsBase } from './forms.interfaces';
 
 const FormSchema = new Schema<Forms & Document>(
   {

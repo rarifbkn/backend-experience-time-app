@@ -18,9 +18,6 @@ export interface Forms extends FormsBase {
   restore?: () => Promise<Forms>;
 }
 
-// Extender el Document de Mongoose (opcional)
-// En la interfaz FormDocument estos métodos son SIEMPRE requeridos
-// ya que esta interfaz es específica para documentos de Mongoose
 export interface FormDocument extends FormsBase, Document {
   softDelete: () => Promise<FormDocument>;
   restore: () => Promise<FormDocument>;
