@@ -1,4 +1,4 @@
-import FieldModel from "./Field";
+import  FieldModel from "./FIeld"
 import { Field, FieldBase, FieldDocument } from "./field.interfaces";
 import { validate as isUuid } from "uuid";
 
