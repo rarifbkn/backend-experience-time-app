@@ -21,6 +21,15 @@ const getAll: RequestHandler = async (_req, res) => {
   }
 };
 
+const getActive: RequestHandler = async (_req, res) => {
+  try {
+    const fields = await fieldService.getActiveFields();
+    res.status(200).json(fields);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching active fields', details: err });
+  }
+};
+
 const getById: RequestHandler<IdParams> = async (req, res) => {
   try {
     const field = await fieldService.getFieldById(req.params.id);
@@ -48,22 +57,52 @@ const update: RequestHandler<IdParams> = async (req, res) => {
 };
 
 const remove: RequestHandler<IdParams> = async (req, res) => {
-    try {
-        const field = await fieldService.deleteField(req.params.id);
-        if (!field) {
-        res.status(404).json({ error: 'Field not found' });
-        return;
-        }
-        res.status(200).json(field);
-    } catch (err) {
-        res.status(500).json({ error: 'Error deleting field', details: err });
+  try {
+    const field = await fieldService.deleteField(req.params.id);
+    if (!field) {
+      res.status(404).json({ error: 'Field not found' });
+      return;
     }
-}
+    res.status(200).json(field);
+  } catch (err) {
+    res.status(500).json({ error: 'Error deleting field', details: err });
+  }
+};
+
+const softDelete: RequestHandler<IdParams> = async (req, res) => {
+  try {
+    const field = await fieldService.softDeleteField(req.params.id);
+    if (!field) {
+      res.status(404).json({ error: 'Field not found' });
+      return;
+    }
+    res.status(200).json(field);
+  } catch (err) {
+    res.status(500).json({ error: 'Error soft deleting field', details: err });
+  }
+};
+
+const restore: RequestHandler<IdParams> = async (req, res) => {
+  try {
+    const field = await fieldService.restoreField(req.params.id);
+    if (!field) {
+      res.status(404).json({ error: 'Field not found or not deleted' });
+      return;
+    }
+    res.status(200).json(field);
+  } catch (err) {
+    res.status(500).json({ error: 'Error restoring field', details: err });
+  }
+};
 
 export default {
-    create,
-    getAll,
-    getById,
-    update,
-    remove
+  create,
+  getAll,
+  getActive,
+  getById,
+  update,
+  remove,
+  softDelete,
+  restore,
 };
+

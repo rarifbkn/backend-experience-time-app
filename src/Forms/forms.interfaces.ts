@@ -8,12 +8,11 @@ export interface FormsBase {
 }
 
 export interface Forms extends FormsBase {
-  _id: any; 
+  _id: string; 
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: boolean;
   deletedAt?: Date | null;
-  
+
   softDelete?: () => Promise<Forms>;
   restore?: () => Promise<Forms>;
 }
@@ -21,13 +20,17 @@ export interface Forms extends FormsBase {
 export interface FormDocument extends FormsBase, Document {
   softDelete: () => Promise<FormDocument>;
   restore: () => Promise<FormDocument>;
-  _id: any;
+  withDeleted: () => Promise<FormDocument[]>;
+  _id: string;
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: boolean;
   deletedAt?: Date | null;
 }
 
 export interface FormModel {
   withDeleted: () => Promise<FormDocument[]>;
+}
+export interface FormModelMethods {
+  softDelete: () => Promise<FormDocument>;
+  restore: () => Promise<FormDocument>;
 }
