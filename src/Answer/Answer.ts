@@ -1,19 +1,21 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Field } from 'src/Field/field.interfaces';
+import { Answer } from 'src/Answer/answer.interfaces';
 import { v4 as uuidv4 } from 'uuid';
 
-
-const FieldSchema = new Schema<Field & Document>(
+const AnswerSchema = new Schema<Answer & Document>(
   {
     _id: {
       type: String,
       default: uuidv4, 
     },
-    name: {
+    fieldId: {
       type: String,
       required: true
     },
-    category: { 
+    init_exp: { 
+      type: String 
+    },
+    final_exp: { 
       type: String 
     },
     createdAt: { type: Date, default: Date.now },
@@ -26,15 +28,15 @@ const FieldSchema = new Schema<Field & Document>(
   }
 );
 
-FieldSchema.methods.softDelete = async function() {
+AnswerSchema.methods.softDelete = async function() {
   this.deletedAt = new Date();
   return await this.save();
 };
 
-FieldSchema.methods.restore = async function() {
+AnswerSchema.methods.restore = async function() {
   this.deletedAt = undefined;
   return await this.save();
 };
 
-const FieldModel = mongoose.model<Field & Document>('Field', FieldSchema);
-export default FieldModel;
+const AnswerModel = mongoose.model<Answer & Document>('Answer', AnswerSchema);
+export default AnswerModel;

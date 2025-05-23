@@ -5,6 +5,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import formsRoutes from './Forms/forms.routes';
 import fieldRoutes from './Field/field.routes';
+import assignmentRoutes from './Assignment/assignment.routes';
+import answerRoutes from './Answer/answer.routes';
 
 const PORT: number = parseInt(process.env.PORT || "4000");
 
@@ -20,6 +22,9 @@ connectDB();
 
 app.use('/forms', formsRoutes);
 app.use('/fields', fieldRoutes );
+app.use('/assignments', assignmentRoutes);
+app.use('/answers', answerRoutes);
+
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: "Something went wrong!" });

@@ -87,14 +87,15 @@ const restore: RequestHandler<IdParams> = async (req, res) => {
   }
 };
 
-// const getDeleted: RequestHandler = async (_req, res) => {
-//   try {
-//     const forms = await formService.getDeletedForms();
-//     res.status(200).json(forms);
-//   } catch (err) {
-//     res.status(500).json({ error: 'Error fetching deleted forms', details: err });
-//   }
-// };
+const getActiveForms: RequestHandler = async (_req, res) => {
+  try {
+    const forms = await formService.getAllForms();
+    const activeForms = forms.filter((form) => !form.deletedAt);
+    res.status(200).json(activeForms);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching active forms', details: err });
+  };
+}
 
 export default {
   create,
@@ -104,5 +105,5 @@ export default {
   update,
   softDelete,
   restore,
-  // getDeleted,
+  getActiveForms,
 };

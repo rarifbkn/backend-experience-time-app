@@ -1,6 +1,6 @@
 import FormModel from './Forms';
 import { Forms, FormsBase, FormDocument } from './forms.interfaces';
-import mongoose from 'mongoose';
+import { validate as isUuid } from 'uuid';
 
 export const createForm = async (data: Partial<FormsBase>): Promise<Forms> => {
   try {
@@ -23,8 +23,8 @@ export const getAllForms = async (): Promise<Forms[]> => {
 
 export const getFormById = async (id: string): Promise<Forms | null> => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error('Invalid ID format');
+    if (!isUuid(id)) {
+      throw new Error('Invalid UUID format');
     }
     return await FormModel.findById(id);
   } catch (error) {
@@ -47,8 +47,8 @@ export const updateForm = async (
   updates: Partial<FormsBase>
 ): Promise<Forms | null> => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error('Invalid ID format');
+    if (!isUuid(id)) {
+      throw new Error('Invalid UUID format');
     }
     return await FormModel.findByIdAndUpdate(
       id,
@@ -63,13 +63,13 @@ export const updateForm = async (
 
 export const deleteForm = async (id: string): Promise<Forms | null> => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error('Invalid ID format');
+    if (!isUuid(id)) {
+      throw new Error('Invalid UUID format');
     }
-    
+
     const form = await FormModel.findById(id) as FormDocument | null;
     if (!form) return null;
-    
+
     return await form.softDelete();
   } catch (error) {
     console.error('Error deleting form:', error);
@@ -79,13 +79,13 @@ export const deleteForm = async (id: string): Promise<Forms | null> => {
 
 export const restoreForm = async (id: string): Promise<Forms | null> => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error('Invalid ID format');
+    if (!isUuid(id)) {
+      throw new Error('Invalid UUID format');
     }
-    
+
     const form = await FormModel.findOne({ _id: id, isDeleted: true }).exec() as FormDocument | null;
     if (!form) return null;
-    
+
     return await form.restore();
   } catch (error) {
     console.error('Error restoring form:', error);
@@ -93,11 +93,22 @@ export const restoreForm = async (id: string): Promise<Forms | null> => {
   }
 };
 
-// export const getDeletedForms = async (): Promise<Forms[]> => {
-//   try {
-//     return await FormModel.withDeleted();
-//   } catch (error) {
-//     console.error('Error fetching deleted forms:', error);
-//     throw new Error('Failed to fetch deleted forms');
-//   }
-// };
+export const softDeleteForm = async (id: string): Promise<Forms | null> => {
+  try {
+    const form = await FormModel.findById(id) as FormDocument | null;
+    if (!form) return null;
+    return await form.softDelete();
+  } catch (error) {
+    console.error('Error performing soft delete on form:', error);
+    throw new Error('Failed to soft delete form');
+  }
+}
+
+export const getActiveForms = async (): Promise<Forms[]> => {
+  try {
+    return await FormModel.find({ deletedAt: null });
+  } catch (error) {
+    console.error('Error fetching active forms:', error);
+    throw new Error('Failed to fetch active forms');
+  }
+}
