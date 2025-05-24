@@ -1,8 +1,10 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
+import { Field } from "src/Field/field.interfaces";
+import { Forms } from "src/Forms/forms.interfaces";
 
 export interface AssignmentBase {
-    id_field: string;
-    id_form: string;
+    field: Field;
+    form: Forms;
 }
 
 export interface Assignment extends AssignmentBase {
@@ -14,8 +16,10 @@ export interface Assignment extends AssignmentBase {
     restore?: () => Promise<Assignment>;
 }
 
-export interface AssignmentDocument extends AssignmentBase, Document {
+export interface AssignmentDocument extends Omit<AssignmentBase, 'field' | 'form'>, Document {
     _id: string;
+    field: Types.ObjectId | Field;
+    form: Types.ObjectId | Forms;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date | null;
