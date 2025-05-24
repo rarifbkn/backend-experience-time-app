@@ -1,16 +1,17 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import { Answer } from 'src/Answer/answer.interfaces';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+import { AnswerDocument } from 'src/Answer/answer.interfaces';
 import { v4 as uuidv4 } from 'uuid';
 
-const AnswerSchema = new Schema<Answer & Document>(
+const AnswerSchema = new Schema<AnswerDocument>(
   {
     _id: {
       type: String,
       default: uuidv4, 
     },
-    fieldId: {
+    field: {
       type: String,
-      required: true
+      ref: 'Field',
+      required: true,
     },
     init_exp: { 
       type: String 
@@ -38,5 +39,5 @@ AnswerSchema.methods.restore = async function() {
   return await this.save();
 };
 
-const AnswerModel = mongoose.model<Answer & Document>('Answer', AnswerSchema);
+const AnswerModel = mongoose.model<AnswerDocument>('Answer', AnswerSchema);
 export default AnswerModel;

@@ -1,7 +1,8 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Field } from 'src/Field/field.interfaces';
 
 export interface AnswerBase {
-    fieldId: string;
+    field: Field;
     init_exp: string;
     final_exp: string;
 }
@@ -15,8 +16,9 @@ export interface Answer extends AnswerBase {
   restore?: () => Promise<Answer>;
 }
 
-export interface AnswerDocument extends AnswerBase, Document {
+export interface AnswerDocument extends Omit<AnswerBase, 'field'>, Document {
   _id: string;
+  field: Types.ObjectId | Field;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
