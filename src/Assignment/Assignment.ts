@@ -15,7 +15,7 @@ const AssignmentSchema = new Schema<AssignmentDocument>(
     },
     form: {
       type: String,
-      ref: 'Forms',
+      ref: 'Form',
       required: true,
     },
     createdAt: { type: Date, default: Date.now },
