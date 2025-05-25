@@ -30,8 +30,8 @@ export const createAssignment = async (data: CreateAssignmentInput): Promise<Ass
             form: data.formId
         });
 
-        const savedAnswer =  await assignment.save();
-        return await (await savedAnswer.populate('field')).populate('forms');
+        const savedAnswer = await assignment.save();
+        return await savedAnswer.populate(['field', 'form']); 
 
     } catch (error) {
         console.error('Error creating assignment:', error);
