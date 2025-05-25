@@ -4,21 +4,34 @@ import mongoose from 'mongoose';
 import * as FieldService from "../Field/Field.services";
 import * as FormService from "../Forms/Forms.services";
 
-export const createAssignment = async (assignmentData: AssignmentBase): Promise<Assignment> => {
+interface CreateAssignmentInput {
+    fieldId: string;
+    formId: string;
+}
+
+export const createAssignment = async (data: CreateAssignmentInput): Promise<Assignment> => {
     try {
-        const existingField = await FieldService.getFieldById(assignmentData.id_field);
-        if (!existingField) {
+        if (!data.fieldId || !data.formId) {
+            throw new Error('Field ID and Form ID are required');
+        }
+
+        const existField = await FieldService.getFieldById(data.fieldId);
+        if (!existField) {
             throw new Error('Field with the given ID does not exist');
         }
 
-        const existingForm = await FormService.getFormById(assignmentData.id_form);
-        if (!existingForm) {
+        const existForm = await FormService.getFormById(data.formId);
+        if (!existForm) {
             throw new Error('Form with the given ID does not exist');
         }
 
-        const assignment = new AssignmentModel(assignmentData);
-        return await assignment.save();
+        const assignment = new AssignmentModel({
+            field: data.fieldId,
+            form: data.formId
+        });
 
+        const savedAnswer = await assignment.save();
+        return await savedAnswer.populate(['field', 'form']); 
 
     } catch (error) {
         console.error('Error creating assignment:', error);
@@ -28,7 +41,8 @@ export const createAssignment = async (assignmentData: AssignmentBase): Promise<
 
 export const getAllAssignments = async (): Promise<Assignment[]> => {
     try {
-        return await AssignmentModel.find();
+        const assignments = await AssignmentModel.find().populate('field').populate('form');
+        return assignments as Assignment[];
     } catch (error) {
         console.error('Error fetching all assignments:', error);
         throw new Error('Failed to fetch assignments');
@@ -37,10 +51,11 @@ export const getAllAssignments = async (): Promise<Assignment[]> => {
 
 export const getAssignmentById = async (id: string): Promise<Assignment | null> => {
     try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw new Error('Invalid ID format');
+        const assignments = await AssignmentModel.find({ _id: id }).populate('field').populate('form');
+        if (assignments.length === 0) {
+            return null; 
         }
-        return await AssignmentModel.findById(id);
+        return assignments[0].toObject() as Assignment; 
     } catch (error) {
         console.error('Error fetching assignment by ID:', error);
         throw new Error('Failed to fetch assignment by ID');
@@ -84,7 +99,8 @@ export const softDeleteAssignment = async (id: string): Promise<Assignment | nul
         if (!assignment) {
             throw new Error('Assignment not found');
         }
-        return await assignment.softDelete();
+        const deletedAssignment = await assignment.softDelete();
+        return await (await deletedAssignment.populate('field')).populate('form');
     } catch (error) {
         console.error('Error soft deleting assignment:', error);
         throw new Error('Failed to soft delete assignment');
@@ -97,7 +113,8 @@ export const restoreAssignment = async (id: string): Promise<Assignment | null> 
         if (!assignment) {
             throw new Error('Assignment not found or not deleted');
         }
-        return await assignment.restore();
+        const restoredAssignment = await assignment.restore();
+        return await (await restoredAssignment.populate('field')).populate('form');
     } catch (error) {
         console.error('Error restoring assignment:', error);
         throw new Error('Failed to restore assignment');

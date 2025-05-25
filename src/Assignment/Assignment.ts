@@ -8,12 +8,14 @@ const AssignmentSchema = new Schema<AssignmentDocument>(
       type: String,
       default: uuidv4, 
     },
-    id_field: {
+    field: {
       type: String,
+      ref: 'Field',
       required: true,
     },
-    id_form: {
+    form: {
       type: String,
+      ref: 'Form',
       required: true,
     },
     createdAt: { type: Date, default: Date.now },
